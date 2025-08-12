@@ -1,0 +1,38 @@
+{
+  "name": "nutrition-ai-mvp-backend",
+  "version": "1.0.0",
+  "description": "MVP Backend for Nutrition AI - Single-page web app for nutritionists using Gemini AI",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nutrition",
+    "ai",
+    "rag",
+    "gemini",
+    "mongodb",
+    "mvp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.2.1",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "mammoth": "^1.6.0",
+    "mongoose": "^8.0.3",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "axios": "^1.6.2",
+    "nodemon": "^3.0.2"
+  }
+}
