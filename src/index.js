@@ -3,8 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
-const connectDB = require('./src/config/db');
-const nutritionRoutes = require('./src/routes/nutritionRoutes');
+const connectDB = require('./config/db');
+const nutritionRoutes = require('./routes/nutritionRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
