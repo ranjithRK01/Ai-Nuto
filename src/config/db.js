@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
+    const conn = await mongoose.connect("mongodb+srv://ranjithRk01:IH7Z2BW2rBJTTTYu@reqsta.ntqrp.mongodb.net/reqsta?retryWrites=true&w=majority&appName=nutrition-ai", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       maxPoolSize: 10,
@@ -14,7 +14,7 @@ const connectDB = async () => {
     console.log(`📊 Database: ${conn.connection.name}`);
     
     // Create vector search index if it doesn't exist (only for Atlas)
-    if (process.env.MONGO_URI && process.env.MONGO_URI.includes('mongodb+srv')) {
+    if (true) {
       await createVectorSearchIndex();
     } else {
       console.log('💡 Local MongoDB detected - vector search will use cosine similarity fallback');

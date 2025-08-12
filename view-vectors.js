@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect("mongodb+srv://ranjithRk01:IH7Z2BW2rBJTTTYu@reqsta.ntqrp.mongodb.net/reqsta?retryWrites=true&w=majority&appName=nutrition-ai", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
