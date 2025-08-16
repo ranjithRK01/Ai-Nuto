@@ -358,8 +358,6 @@ const deleteMenuItem = async (req, res) => {
   }
 };
 
-// Initialize menu on module load
-initializeMenu();
 
 module.exports = {
   generateBillFromVoice,
@@ -368,5 +366,6 @@ module.exports = {
   getAllMenuItems,
   addMenuItem,
   updateMenuItem,
-  deleteMenuItem
+  deleteMenuItem,
+  initializeMenu
 };

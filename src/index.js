@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const nutritionRoutes = require('./routes/nutritionRoutes');
 const billRoutes = require('./routes/billRoutes');
@@ -26,8 +27,26 @@ if (missingEnvVars.length > 0) {
   process.exit(1);
 }
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB and initialize menu
+const initializeServer = async () => {
+  try {
+    // Connect to database
+    const conn = await connectDB();
+    
+    // Initialize menu items after database connection
+    const { initializeMenu } = require('./controllers/billController');
+    await initializeMenu();
+    
+    console.log('✅ Server initialization completed');
+    
+  } catch (error) {
+    console.error('❌ Server initialization failed:', error);
+    process.exit(1);
+  }
+};
+
+// Initialize server
+initializeServer();
 
 // Middleware
 app.use(helmet());
@@ -40,6 +59,17 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static('uploads'));
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+  });
+});
 
 // API routes
 app.use('/api', nutritionRoutes);

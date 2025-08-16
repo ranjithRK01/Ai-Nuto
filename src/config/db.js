@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect("mongodb+srv://ranjithRk01:IH7Z2BW2rBJTTTYu@reqsta.ntqrp.mongodb.net/reqsta?retryWrites=true&w=majority&appName=nutrition-ai", {
+    const mongoUri = process.env.MONGO_URI || "mongodb+srv://ranjithRk01:IH7Z2BW2rBJTTTYu@reqsta.ntqrp.mongodb.net/reqsta?retryWrites=true&w=majority&appName=nutrition-ai";
+    
+    const conn = await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       maxPoolSize: 10,
@@ -19,6 +21,9 @@ const connectDB = async () => {
     } else {
       console.log('💡 Local MongoDB detected - vector search will use cosine similarity fallback');
     }
+    
+    // Return the connection for external use
+    return conn;
     
   } catch (error) {
     console.error('❌ Error connecting to MongoDB:', error.message);
