@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const connectDB = require('./config/db');
 const nutritionRoutes = require('./routes/nutritionRoutes');
+const billRoutes = require('./routes/billRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -42,6 +43,7 @@ app.use('/uploads', express.static('uploads'));
 
 // API routes
 app.use('/api', nutritionRoutes);
+app.use('/api/bill', billRoutes);
 
 // Root route with API documentation
 app.get('/', (req, res) => {
@@ -71,7 +73,8 @@ app.get('/', (req, res) => {
       health: '/api/health',
       upload: '/api/upload-plan',
       ask: '/api/ask',
-      plan: '/api/plan'
+      plan: '/api/plan',
+      bill: '/api/bill'
     },
     deployment: {
       frontend: 'React (Vercel)',
@@ -134,7 +137,10 @@ app.use('*', (req, res) => {
       'POST /api/upload-plan',
       'GET /api/plan',
       'DELETE /api/plan',
-      'POST /api/ask'
+      'POST /api/ask',
+      'POST /api/bill/generate-bill',
+      'GET /api/bill/bills',
+      'GET /api/bill/menu'
     ]
   });
 });
