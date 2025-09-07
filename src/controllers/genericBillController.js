@@ -151,18 +151,20 @@ async function parseGenericOrder(voiceInput) {
 IMPORTANT: Handle Tamil language, Tanglish (Tamil-English mix), local slang variations, and PRICING efficiently.
 
 RULES:
-1. Extract each item mentioned with its quantity AND price
+1. Extract each item mentioned with its quantity AND TOTAL PRICE (not unit price)
 2. Handle Tamil numbers: ஒரு(1), இரண்டு(2), மூன்று(3), நான்கு(4), ஐந்து(5), etc.
 3. Handle slang variations: ஒண்ணு(1), ரெண்டு(2), மூணு(3), நாலு(4), etc.
 4. Handle Tanglish: "ரெட் வயர்" = "Red Wires", "பேண்ட்" = "Pants"
 5. Normalize product names to English (e.g., "சிவப்பு கம்பி" → "Red Wires")
-6. Extract prices in Tamil: "ரெண்டு ரூபாய்" = 2, "மூணு ரூ" = 3, "பத்து டாலர்" = 10
+6. Extract TOTAL prices: "நாலு சட்ட 1600" = 4 shirts for 1600 total
 7. Handle price formats: "50 ரூபாய்", "50 ரூ", "50 rupees", "50 dollars"
 8. Default quantity is 1 if not mentioned
 9. Default price is null if not mentioned
-10. Calculate totalPrice = quantity × unitPrice (or null if unitPrice is null)
-11. Calculate billTotal = sum of all totalPrice values (ignore nulls)
-12. Return ONLY valid JSON, no explanations
+10. IMPORTANT: The price given is the TOTAL price for the entire quantity, not per unit
+11. Set unitPrice = totalPrice / quantity (or null if totalPrice is null)
+12. Set totalPrice = the given total price (or null if not provided)
+13. Calculate billTotal = sum of all totalPrice values (ignore nulls)
+14. Return ONLY valid JSON, no explanations
 
 COMMON TAMIL PRODUCT MAPPINGS:
 - கம்பி/வயர் = Wires, கேபிள் = Cables
@@ -186,7 +188,16 @@ JSON FORMAT:
 }
 
 EXAMPLES:
-Input: "ரெண்டு சிவப்பு கம்பி 50 ரூபாய், மூணு செருப்பு 200 ரூ, ஒரு சரி 500 ரூபாய்"
+Input: "நாலு சட்ட 1600, மூணு பேண்ட் 2000"
+Output: {
+  "items": [
+    {"name": "Shirt", "quantity": 4, "unitPrice": 400, "totalPrice": 1600},
+    {"name": "Pants", "quantity": 3, "unitPrice": 666.67, "totalPrice": 2000}
+  ],
+  "billTotal": 3600
+}
+
+Input: "ரெண்டு சிவப்பு கம்பி 100 ரூபாய், மூணு செருப்பு 600 ரூ, ஒரு சரி 500 ரூபாய்"
 Output: {
   "items": [
     {"name": "Red Wires", "quantity": 2, "unitPrice": 50, "totalPrice": 100},
@@ -196,7 +207,7 @@ Output: {
   "billTotal": 1200
 }
 
-Input: "ஐந்து ஆப்பிள் 20 ரூபாய், இரண்டு கிலோ அரிசி 100 ரூ, ஒரு பால் பாட்டில் 30 ரூ"
+Input: "ஐந்து ஆப்பிள் 100 ரூபாய், இரண்டு கிலோ அரிசி 200 ரூ, ஒரு பால் பாட்டில் 30 ரூ"
 Output: {
   "items": [
     {"name": "Apples", "quantity": 5, "unitPrice": 20, "totalPrice": 100},
@@ -206,7 +217,7 @@ Output: {
   "billTotal": 330
 }
 
-Input: "டஜன் முட்டை 5 ரூபாய், மூணு லிட்டர் பால் 60 ரூ, இரண்டு ரொட்டி 40 ரூபாய்"
+Input: "டஜன் முட்டை 60 ரூபாய், மூணு லிட்டர் பால் 180 ரூ, இரண்டு ரொட்டி 80 ரூபாய்"
 Output: {
   "items": [
     {"name": "Eggs", "quantity": 12, "unitPrice": 5, "totalPrice": 60},
@@ -216,7 +227,7 @@ Output: {
   "billTotal": 320
 }
 
-Input: "ரெண்டு கம்பி, மூணு செருப்பு 150 ரூ, ஒரு சரி"
+Input: "ரெண்டு கம்பி, மூணு செருப்பு 450 ரூ, ஒரு சரி"
 Output: {
   "items": [
     {"name": "Wires", "quantity": 2, "unitPrice": null, "totalPrice": null},
@@ -264,13 +275,13 @@ CUSTOMER ORDER: "${processedInput}"`;
     const processedItems = parsed.items.map(item => {
       const name = String(item.name || '').trim();
       const quantity = Math.max(1, parseInt(item.quantity) || 1);
-      const unitPrice = item.unitPrice !== undefined ? parseFloat(item.unitPrice) : null;
-      const totalPrice = unitPrice !== null ? unitPrice * quantity : null;
+      const totalPrice = item.totalPrice !== undefined ? parseFloat(item.totalPrice) : null;
+      const unitPrice = totalPrice !== null ? totalPrice / quantity : null;
       
       return {
         name,
         quantity,
-        unitPrice,
+        unitPrice: unitPrice ? Math.round(unitPrice * 100) / 100 : null, // Round to 2 decimal places
         totalPrice
       };
     }).filter(item => item.name.length > 0);
