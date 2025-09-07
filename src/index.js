@@ -8,6 +8,7 @@ const connectDB = require('./config/db');
 const nutritionRoutes = require('./routes/nutritionRoutes');
 const billRoutes = require('./routes/billRoutes');
 const menuRoutes = require('./routes/menuRoutes');
+const genericBillRoutes = require('./routes/genericBillRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -85,6 +86,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api', nutritionRoutes);
 app.use('/api/bill', billRoutes);
 app.use('/api/menu', menuRoutes);
+app.use('/api/generic-bill', genericBillRoutes);
 
 // Root route with API documentation
 app.get('/', (req, res) => {
@@ -185,7 +187,8 @@ app.use('*', (req, res) => {
       'GET /api/menu/categories',
       'POST /api/bill/generate-bill',
       'GET /api/bill/bills',
-      'GET /api/bill/menu'
+      'GET /api/bill/menu',
+      'POST /api/generic-bill/generate-bill'
     ]
   });
 });
