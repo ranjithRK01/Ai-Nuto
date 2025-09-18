@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+const shopSchema = new mongoose.Schema(
+  {
   shopName: {
     type: String,
     required: true,
@@ -18,11 +19,10 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  }
+}
+,{ 
+    timestamps: true,
+  });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('Shop', shopSchema);

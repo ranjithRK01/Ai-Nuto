@@ -7,8 +7,7 @@ const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const nutritionRoutes = require('./routes/nutritionRoutes');
 const billRoutes = require('./routes/billRoutes');
-const userRouter = require('./routes/userRoutes');
-// # MONGO_URI=mongodb+srv://merndevops:MuZNMMd6W99EQr%@cluster0.jkeze.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+const shopRouter = require('./routes/shopRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -78,7 +77,7 @@ app.get('/api/health', (req, res) => {
 // API routes
 app.use('/api', nutritionRoutes);
 app.use('/api/bill', billRoutes);
-app.use('/api/user', userRouter);
+app.use('/api/shop', shopRouter);
 
 // Root route with API documentation
 app.get('/', (req, res) => {

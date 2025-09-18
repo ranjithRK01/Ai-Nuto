@@ -1,13 +1,13 @@
-const User = require('../models/user');
+const Shop = require('../models/shop');
 
-const userRegister = async (req, res) => {
+const shopRegister = async (req, res) => {
   try {
     let { name, phone, shopName } = req.body;
     // Convert phone to string
     const phoneStr = phone.toString();
     // Take first 4 digits as password
     const password = phoneStr.slice(0, 4);
-    const userRegister = new User({
+    const userRegister = new Shop({
       shopName,
       name,
       phone,
@@ -19,7 +19,7 @@ const userRegister = async (req, res) => {
         message: 'Phone number must be exactly 10 digits',
       });
     }
-    const existingUser = await User.findOne({ phone });
+    const existingUser = await Shop.findOne({ phone });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -42,10 +42,10 @@ const userRegister = async (req, res) => {
   }
 };
 
-const userList = async (req, res) => {
+const shopList = async (req, res) => {
   try {
-    const users = await User.find();
-    res.status(200).json(users);
+    const shop = await Shop.find();
+    res.status(200).json(shop);
   } catch (error) {
     res.status(500).json({
       error: 'Internal server error',
@@ -54,4 +54,4 @@ const userList = async (req, res) => {
   }
 };
 
-module.exports = { userRegister, userList };
+module.exports = { shopRegister, shopList };
