@@ -175,6 +175,29 @@ const deleteMenuItem = async (req, res) => {
   }
 };
 
+// Append synonyms to a specific language (en/ta) without duplicates
+const addMenuItemSynonyms = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const lang = String(req.body.lang || req.body.language || '').trim().toLowerCase();
+    if (!['en', 'ta'].includes(lang)) {
+      return res.status(400).json({ success: false, error: 'Invalid language', message: "lang must be 'en' or 'ta'" });
+    }
+    const values = normalizeTrimmedArray(req.body.value || req.body.values || req.body.term || req.body.synonym || req.body.synonyms);
+    if (!values.length) {
+      return res.status(400).json({ success: false, error: 'No synonyms provided' });
+    }
+
+    const path = `synonyms.${lang}`;
+    const update = { $addToSet: { [path]: { $each: values } } };
+    const item = await MenuItem.findByIdAndUpdate(id, update, { new: true });
+    if (!item) return res.status(404).json({ success: false, error: 'Not found' });
+    return res.json({ success: true, item });
+  } catch (error) {
+    res.status(400).json({ success: false, error: 'Add synonyms failed', message: error.message });
+  }
+};
+
 // Categories helper
 const getCategories = async (req, res) => {
   try {
@@ -198,7 +221,8 @@ module.exports = {
   updateMenuItem,
   patchMenuItem,
   deleteMenuItem,
-  getCategories
+  getCategories,
+  addMenuItemSynonyms
 };
 
 

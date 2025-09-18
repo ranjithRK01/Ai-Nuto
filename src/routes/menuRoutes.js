@@ -9,7 +9,8 @@ const {
   updateMenuItem,
   patchMenuItem,
   deleteMenuItem,
-  getCategories
+  getCategories,
+  addMenuItemSynonyms
 } = require('../controllers/menuController');
 
 // List and categories
@@ -25,6 +26,9 @@ router.get('/:id', getMenuItem);
 router.put('/:id', updateMenuItem);
 router.patch('/:id', patchMenuItem);
 router.delete('/:id', deleteMenuItem);
+
+// Append synonyms to a language
+router.post('/:id/synonyms', addMenuItemSynonyms);
 
 module.exports = router;
 
