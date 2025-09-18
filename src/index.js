@@ -7,17 +7,21 @@ const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const nutritionRoutes = require('./routes/nutritionRoutes');
 const billRoutes = require('./routes/billRoutes');
+const userRouter = require('./routes/userRoutes');
+// # MONGO_URI=mongodb+srv://merndevops:MuZNMMd6W99EQr%@cluster0.jkeze.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Check required environment variables
-const requiredEnvVars = ['GEMINI_API_KEY', 'MONGO_URI'];
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+const requiredEnvVars = ['GEMINI_API_KEY'];
+const missingEnvVars = requiredEnvVars.filter(
+  (varName) => !process.env[varName]
+);
 
 if (missingEnvVars.length > 0) {
   console.error('❌ Missing required environment variables:');
-  missingEnvVars.forEach(varName => {
+  missingEnvVars.forEach((varName) => {
     console.error(`   - ${varName}`);
   });
   console.log('\n💡 Please create a .env file with the required variables.');
@@ -32,13 +36,12 @@ const initializeServer = async () => {
   try {
     // Connect to database
     const conn = await connectDB();
-    
+
     // Initialize menu items after database connection
     const { initializeMenu } = require('./controllers/billController');
     await initializeMenu();
-    
+
     console.log('✅ Server initialization completed');
-    
   } catch (error) {
     console.error('❌ Server initialization failed:', error);
     process.exit(1);
@@ -67,27 +70,30 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
-    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+    database:
+      mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
   });
 });
 
 // API routes
 app.use('/api', nutritionRoutes);
 app.use('/api/bill', billRoutes);
+app.use('/api/user', userRouter);
 
 // Root route with API documentation
 app.get('/', (req, res) => {
   res.json({
     message: 'Human-Friendly Nutrition AI MVP Backend',
     version: '1.0.0',
-    description: 'Simple, friendly nutrition specialist AI that gives short, clear answers based on meal plans',
+    description:
+      'Simple, friendly nutrition specialist AI that gives short, clear answers based on meal plans',
     features: [
       'PDF/DOCX/TXT file upload and parsing',
       'MongoDB vector search and storage',
       'Short, simple answers (max 3 lines)',
       'Human-friendly language',
       'Rate limiting and security',
-      'Persistent meal plan management'
+      'Persistent meal plan management',
     ],
     aiStyle: [
       'Short and simple answers',
@@ -95,7 +101,7 @@ app.get('/', (req, res) => {
       'Direct and clear responses',
       'Confident yes/no answers',
       'Practical alternatives',
-      'Encouraging and helpful tone'
+      'Encouraging and helpful tone',
     ],
     api: {
       baseUrl: '/api',
@@ -104,55 +110,55 @@ app.get('/', (req, res) => {
       upload: '/api/upload-plan',
       ask: '/api/ask',
       plan: '/api/plan',
-      bill: '/api/bill'
+      bill: '/api/bill',
     },
     deployment: {
       frontend: 'React (Vercel)',
       backend: 'Node.js + Express (Railway/Render)',
       database: 'MongoDB (Atlas/Local)',
-      ai: 'Google Gemini AI - Human-Friendly Nutrition Specialist'
+      ai: 'Google Gemini AI - Human-Friendly Nutrition Specialist',
     },
-    status: 'Ready for MVP development'
+    status: 'Ready for MVP development',
   });
 });
 
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('Error:', error);
-  
+
   if (error.name === 'MulterError') {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         error: 'File too large',
         message: 'The uploaded file exceeds the maximum allowed size.',
-        maxSize: '10MB'
+        maxSize: '10MB',
       });
     }
     if (error.code === 'LIMIT_UNEXPECTED_FILE') {
       return res.status(400).json({
         error: 'Invalid file field',
         message: 'Please use the field name "plan" for file uploads.',
-        correctFormat: 'multipart/form-data with field name "plan"'
+        correctFormat: 'multipart/form-data with field name "plan"',
       });
     }
     return res.status(400).json({
       error: 'File upload error',
-      message: error.message
+      message: error.message,
     });
   }
-  
+
   if (error.name === 'RateLimitExceeded') {
     return res.status(429).json({
       error: 'Rate limit exceeded',
       message: 'Too many requests. Please try again later.',
-      retryAfter: error.retryAfter
+      retryAfter: error.retryAfter,
     });
   }
-  
+
   res.status(500).json({
     error: 'Internal server error',
     message: 'Something went wrong. Please try again.',
-    details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    details: process.env.NODE_ENV === 'development' ? error.message : undefined,
   });
 });
 
@@ -170,8 +176,9 @@ app.use('*', (req, res) => {
       'POST /api/ask',
       'POST /api/bill/generate-bill',
       'GET /api/bill/bills',
-      'GET /api/bill/menu'
-    ]
+      'GET /api/bill/menu',
+      'POSt /api/user/register',
+    ],
   });
 });
 
@@ -188,20 +195,28 @@ process.on('SIGINT', () => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Human-Friendly Nutrition AI MVP Backend running on port ${PORT}`);
+  console.log(
+    `🚀 Human-Friendly Nutrition AI MVP Backend running on port ${PORT}`
+  );
   console.log(`📖 API Documentation: http://localhost:${PORT}/api`);
   console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🗄️  Database: MongoDB (${process.env.MONGO_URI ? 'Configured' : 'Not configured'})`);
-  console.log(`🤖 AI Model: Google Gemini AI - Human-Friendly Nutrition Specialist`);
-  
+  console.log(
+    `🗄️  Database: MongoDB (true ? 'Configured' : 'Not configured'})`
+  );
+  console.log(
+    `🤖 AI Model: Google Gemini AI - Human-Friendly Nutrition Specialist`
+  );
+
   if (!process.env.GEMINI_API_KEY) {
-    console.warn('⚠️  Warning: GEMINI_API_KEY not set. AI features will not work.');
+    console.warn(
+      '⚠️  Warning: GEMINI_API_KEY not set. AI features will not work.'
+    );
   }
-  
-  if (!process.env.MONGO_URI) {
-    console.warn('⚠️  Warning: MONGO_URI not set. Database features will not work.');
-  }
+
+  // if (!process.env.MONGO_URI) {
+  //   console.warn('⚠️  Warning: MONGO_URI not set. Database features will not work.');
+  // }
 });
 
-module.exports = app; 
+module.exports = app;

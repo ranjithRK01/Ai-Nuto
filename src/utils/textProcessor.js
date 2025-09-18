@@ -9,7 +9,7 @@ const cleanText = (text) => {
   if (!text || typeof text !== 'string') {
     return '';
   }
-  
+
   return text
     .replace(/\s+/g, ' ') // Replace multiple spaces with single space
     .replace(/\n+/g, '\n') // Replace multiple newlines with single newline
@@ -27,20 +27,20 @@ const chunkText = (text, chunkSize = 800, overlap = 150) => {
   if (!text || text.length <= chunkSize) {
     return text ? [text] : [];
   }
-  
+
   const chunks = [];
   let start = 0;
-  
+
   while (start < text.length) {
     const end = Math.min(start + chunkSize, text.length);
     let chunk = text.slice(start, end);
-    
+
     // Try to break at sentence boundaries
     if (end < text.length) {
       const lastPeriod = chunk.lastIndexOf('.');
       const lastNewline = chunk.lastIndexOf('\n');
       const breakPoint = Math.max(lastPeriod, lastNewline);
-      
+
       if (breakPoint > start + chunkSize * 0.7) {
         chunk = chunk.slice(0, breakPoint + 1);
         start = start + breakPoint + 1;
@@ -50,12 +50,13 @@ const chunkText = (text, chunkSize = 800, overlap = 150) => {
     } else {
       start = end;
     }
-    
-    if (chunk.trim().length > 50) { // Only add chunks with meaningful content
+
+    if (chunk.trim().length > 50) {
+      // Only add chunks with meaningful content
       chunks.push(chunk.trim());
     }
   }
-  
+
   return chunks;
 };
 
@@ -69,22 +70,54 @@ const extractNutritionSections = (text) => {
   const lines = text.split('\n');
   let currentSection = '';
   let inNutritionSection = false;
-  
+
   const nutritionKeywords = [
-    'breakfast', 'lunch', 'dinner', 'snack', 'meal', 'food', 'nutrition',
-    'diet', 'eating', 'calories', 'protein', 'carbs', 'fat', 'vitamins',
-    'minerals', 'supplements', 'water', 'drink', 'beverage', 'restrictions',
-    'avoid', 'limit', 'recommended', 'serving', 'portion', 'grams', 'oz',
-    'cup', 'tablespoon', 'teaspoon', 'piece', 'slice', 'whole', 'half'
+    'breakfast',
+    'lunch',
+    'dinner',
+    'snack',
+    'meal',
+    'food',
+    'nutrition',
+    'diet',
+    'eating',
+    'calories',
+    'protein',
+    'carbs',
+    'fat',
+    'vitamins',
+    'minerals',
+    'supplements',
+    'water',
+    'drink',
+    'beverage',
+    'restrictions',
+    'avoid',
+    'limit',
+    'recommended',
+    'serving',
+    'portion',
+    'grams',
+    'oz',
+    'cup',
+    'tablespoon',
+    'teaspoon',
+    'piece',
+    'slice',
+    'whole',
+    'half',
   ];
-  
+
   for (const line of lines) {
     const lowerLine = line.toLowerCase();
-    const hasNutritionContent = nutritionKeywords.some(keyword => 
+    const hasNutritionContent = nutritionKeywords.some((keyword) =>
       lowerLine.includes(keyword)
     );
-    
-    if (hasNutritionContent || line.match(/^(day|week|meal|breakfast|lunch|dinner|snack)/i)) {
+
+    if (
+      hasNutritionContent ||
+      line.match(/^(day|week|meal|breakfast|lunch|dinner|snack)/i)
+    ) {
       inNutritionSection = true;
       currentSection += line + '\n';
     } else if (inNutritionSection && line.trim().length > 0) {
@@ -97,12 +130,12 @@ const extractNutritionSections = (text) => {
       inNutritionSection = false;
     }
   }
-  
+
   // Add the last section if it exists
   if (currentSection.trim().length > 0) {
     sections.push(currentSection.trim());
   }
-  
+
   return sections;
 };
 
@@ -123,17 +156,17 @@ const processNutritionPlan = (text) => {
   if (!text || typeof text !== 'string') {
     return [];
   }
-  
+
   // Clean the text first
   const cleanedText = cleanText(text);
-  
+
   if (cleanedText.length === 0) {
     return [];
   }
-  
+
   // Extract nutrition sections
   const nutritionSections = extractNutritionSections(cleanedText);
-  
+
   // If no nutrition sections found, chunk the entire text
   if (nutritionSections.length === 0) {
     return chunkText(cleanedText).map((chunk, index) => ({
@@ -142,33 +175,33 @@ const processNutritionPlan = (text) => {
         sectionTitle: 'General Nutrition Plan',
         sectionIndex: 0,
         chunkIndex: index,
-        type: 'nutrition_chunk'
-      }
+        type: 'nutrition_chunk',
+      },
     }));
   }
-  
+
   // Process each nutrition section
   const chunks = [];
   nutritionSections.forEach((section, sectionIndex) => {
     const sectionChunks = chunkText(section);
-    
+
     sectionChunks.forEach((chunk, chunkIndex) => {
       // Extract section title from first line
       const lines = section.split('\n');
       const sectionTitle = lines[0]?.trim() || `Section ${sectionIndex + 1}`;
-      
+
       chunks.push({
         text: chunk,
         metadata: {
           sectionTitle: sectionTitle,
           sectionIndex: sectionIndex,
           chunkIndex: chunkIndex,
-          type: 'nutrition_chunk'
-        }
+          type: 'nutrition_chunk',
+        },
       });
     });
   });
-  
+
   return chunks;
 };
 
@@ -179,80 +212,100 @@ const processNutritionPlan = (text) => {
  */
 const extractNutritionInfo = (text) => {
   const lowerText = text.toLowerCase();
-  
+
   // Extract meals
   const meals = [];
   const mealPatterns = [
     /breakfast[:\s-]+([^.\n]+)/gi,
     /lunch[:\s-]+([^.\n]+)/gi,
     /dinner[:\s-]+([^.\n]+)/gi,
-    /snack[:\s-]+([^.\n]+)/gi
+    /snack[:\s-]+([^.\n]+)/gi,
   ];
-  
-  mealPatterns.forEach(pattern => {
+
+  mealPatterns.forEach((pattern) => {
     const matches = [...lowerText.matchAll(pattern)];
-    matches.forEach(match => {
+    matches.forEach((match) => {
       if (match[1] && match[1].trim().length > 0) {
         meals.push(match[1].trim());
       }
     });
   });
-  
+
   // Extract foods
   const foods = [];
   const foodKeywords = [
-    'almonds', 'walnuts', 'brazil nuts', 'pumpkin seeds', 'broccoli',
-    'beans', 'rice', 'millet', 'eggs', 'paneer', 'sauerkraut', 'berries',
-    'avocado', 'chicken', 'salmon', 'quinoa', 'vegetables', 'fruits',
-    'nuts', 'seeds', 'grains', 'protein', 'vegetables', 'fruits'
+    'almonds',
+    'walnuts',
+    'brazil nuts',
+    'pumpkin seeds',
+    'broccoli',
+    'beans',
+    'rice',
+    'millet',
+    'eggs',
+    'paneer',
+    'sauerkraut',
+    'berries',
+    'avocado',
+    'chicken',
+    'salmon',
+    'quinoa',
+    'vegetables',
+    'fruits',
+    'nuts',
+    'seeds',
+    'grains',
+    'protein',
+    'vegetables',
+    'fruits',
   ];
-  
-  foodKeywords.forEach(food => {
+
+  foodKeywords.forEach((food) => {
     if (lowerText.includes(food)) {
       foods.push(food);
     }
   });
-  
+
   // Extract restrictions
   const restrictions = [];
   const restrictionPatterns = [
     /avoid[:\s]+([^.\n]+)/gi,
     /limit[:\s]+([^.\n]+)/gi,
     /no[:\s]+([^.\n]+)/gi,
-    /restrict[:\s]+([^.\n]+)/gi
+    /restrict[:\s]+([^.\n]+)/gi,
   ];
-  
-  restrictionPatterns.forEach(pattern => {
+
+  restrictionPatterns.forEach((pattern) => {
     const matches = [...lowerText.matchAll(pattern)];
-    matches.forEach(match => {
+    matches.forEach((match) => {
       if (match[1] && match[1].trim().length > 0) {
         restrictions.push(match[1].trim());
       }
     });
   });
-  
+
   // Extract timing information
   const timing = [];
   const timingPatterns = [
     /(\d{1,2}:\d{2}\s*(?:am|pm))/gi,
     /(morning|afternoon|evening|night)/gi,
-    /(before|after)\s+(breakfast|lunch|dinner)/gi
+    /(before|after)\s+(breakfast|lunch|dinner)/gi,
   ];
-  
-  timingPatterns.forEach(pattern => {
+
+  timingPatterns.forEach((pattern) => {
     const matches = [...lowerText.matchAll(pattern)];
-    matches.forEach(match => {
+    matches.forEach((match) => {
       if (match[1] && match[1].trim().length > 0) {
         timing.push(match[1].trim());
       }
     });
   });
-  
+
   return {
     meals: [...new Set(meals)],
     foods: [...new Set(foods)],
     restrictions: [...new Set(restrictions)],
-    timing: [...new Set(timing)]
+    timing: [...new Set(timing)],
   };
 };
 
@@ -262,5 +315,5 @@ module.exports = {
   extractNutritionSections,
   generatePlanId,
   processNutritionPlan,
-  extractNutritionInfo
-}; 
+  extractNutritionInfo,
+};

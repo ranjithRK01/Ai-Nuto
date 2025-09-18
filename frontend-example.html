@@ -1,410 +1,419 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Voice-to-Bill Generator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
 
-        .header {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+      .header {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
 
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
 
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+      }
 
-        .content {
-            padding: 30px;
-        }
+      .content {
+        padding: 30px;
+      }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+      .form-group {
+        margin-bottom: 20px;
+      }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+      }
 
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+      }
 
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+      }
 
-        .voice-input {
-            background: #f8f9fa;
-            border: 2px dashed #667eea;
-            font-style: italic;
-            color: #666;
-        }
+      .voice-input {
+        background: #f8f9fa;
+        border: 2px dashed #667eea;
+        font-style: italic;
+        color: #666;
+      }
 
-        .btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-            width: 100%;
-        }
+      .btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        width: 100%;
+      }
 
-        .btn:hover {
-            transform: translateY(-2px);
-        }
+      .btn:hover {
+        transform: translateY(-2px);
+      }
 
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
 
-        .result {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #28a745;
-        }
+      .result {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #28a745;
+      }
 
-        .result.hidden {
-            display: none;
-        }
+      .result.hidden {
+        display: none;
+      }
 
-        .bill-details {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 15px;
-        }
+      .bill-details {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 15px;
+      }
 
-        .bill-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e9ecef;
-        }
+      .bill-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e9ecef;
+      }
 
-        .bill-id {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #667eea;
-        }
+      .bill-id {
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #667eea;
+      }
 
-        .total-amount {
-            font-size: 2em;
-            font-weight: 700;
-            color: #28a745;
-        }
+      .total-amount {
+        font-size: 2em;
+        font-weight: 700;
+        color: #28a745;
+      }
 
-        .items-list {
-            margin-bottom: 20px;
-        }
+      .items-list {
+        margin-bottom: 20px;
+      }
 
-        .item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f3f4;
-        }
+      .item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f3f4;
+      }
 
-        .item:last-child {
-            border-bottom: none;
-        }
+      .item:last-child {
+        border-bottom: none;
+      }
 
-        .item-name {
-            font-weight: 600;
-            color: #333;
-        }
+      .item-name {
+        font-weight: 600;
+        color: #333;
+      }
 
-        .item-details {
-            text-align: right;
-            color: #666;
-        }
+      .item-details {
+        text-align: right;
+        color: #666;
+      }
 
-        .item-price {
-            font-weight: 600;
-            color: #28a745;
-        }
+      .item-price {
+        font-weight: 600;
+        color: #28a745;
+      }
 
-        .bill-info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
+      .bill-info {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
 
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+      }
 
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+      }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left-color: #dc3545;
-        }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        border-left-color: #dc3545;
+      }
 
-        .menu-preview {
-            background: #e8f5e8;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
+      .menu-preview {
+        background: #e8f5e8;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
 
-        .menu-preview h3 {
-            color: #28a745;
-            margin-bottom: 15px;
-        }
+      .menu-preview h3 {
+        color: #28a745;
+        margin-bottom: 15px;
+      }
 
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
+      .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
 
-        .menu-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #28a745;
-        }
+      .menu-item {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+      }
 
-        .menu-item-name {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
+      .menu-item-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+      }
 
-        .menu-item-tamil {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
+      .menu-item-tamil {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 5px;
+      }
 
-        .menu-item-price {
-            color: #28a745;
-            font-weight: 600;
-        }
+      .menu-item-price {
+        color: #28a745;
+        font-weight: 600;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>🎤 Voice-to-Bill Generator</h1>
-            <p>Convert voice input to structured bills for Indian restaurants</p>
+      <div class="header">
+        <h1>🎤 Voice-to-Bill Generator</h1>
+        <p>Convert voice input to structured bills for Indian restaurants</p>
+      </div>
+
+      <div class="content">
+        <!-- Menu Preview -->
+        <div class="menu-preview">
+          <h3>🍽️ Available Menu Items</h3>
+          <div class="menu-grid" id="menuGrid">
+            <!-- Menu items will be loaded here -->
+          </div>
         </div>
 
-        <div class="content">
-            <!-- Menu Preview -->
-            <div class="menu-preview">
-                <h3>🍽️ Available Menu Items</h3>
-                <div class="menu-grid" id="menuGrid">
-                    <!-- Menu items will be loaded here -->
-                </div>
-            </div>
+        <!-- Voice Input Form -->
+        <form id="billForm">
+          <div class="form-group">
+            <label for="voiceInput">🎤 Voice Input (Text)</label>
+            <textarea
+              id="voiceInput"
+              class="voice-input"
+              rows="3"
+              placeholder="Example: 2 dosa and 1 masala dosa and 2 idly and coffee"
+              required
+            ></textarea>
+          </div>
 
-            <!-- Voice Input Form -->
-            <form id="billForm">
-                <div class="form-group">
-                    <label for="voiceInput">🎤 Voice Input (Text)</label>
-                    <textarea 
-                        id="voiceInput" 
-                        class="voice-input" 
-                        rows="3" 
-                        placeholder="Example: 2 dosa and 1 masala dosa and 2 idly and coffee"
-                        required
-                    ></textarea>
-                </div>
+          <button type="submit" class="btn" id="generateBtn">
+            🚀 Generate Bill
+          </button>
+        </form>
 
-
-
-                <button type="submit" class="btn" id="generateBtn">
-                    🚀 Generate Bill
-                </button>
-            </form>
-
-            <!-- Loading State -->
-            <div class="loading hidden" id="loading">
-                <div class="spinner"></div>
-                <p>Processing voice input with AI...</p>
-            </div>
-
-            <!-- Result -->
-            <div class="result hidden" id="result">
-                <h3>✅ Bill Generated Successfully!</h3>
-                <div class="bill-details" id="billDetails">
-                    <!-- Bill details will be populated here -->
-                </div>
-            </div>
-
-            <!-- Error -->
-            <div class="result error hidden" id="error">
-                <h3>❌ Error</h3>
-                <p id="errorMessage"></p>
-            </div>
+        <!-- Loading State -->
+        <div class="loading hidden" id="loading">
+          <div class="spinner"></div>
+          <p>Processing voice input with AI...</p>
         </div>
+
+        <!-- Result -->
+        <div class="result hidden" id="result">
+          <h3>✅ Bill Generated Successfully!</h3>
+          <div class="bill-details" id="billDetails">
+            <!-- Bill details will be populated here -->
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="result error hidden" id="error">
+          <h3>❌ Error</h3>
+          <p id="errorMessage"></p>
+        </div>
+      </div>
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:5000/api/bill';
-        
-        // DOM elements
-        const form = document.getElementById('billForm');
-        const voiceInput = document.getElementById('voiceInput');
+      const API_BASE = 'http://localhost:5000/api/bill';
 
-        const generateBtn = document.getElementById('generateBtn');
-        const loading = document.getElementById('loading');
-        const result = document.getElementById('result');
-        const error = document.getElementById('error');
-        const billDetails = document.getElementById('billDetails');
-        const errorMessage = document.getElementById('errorMessage');
-        const menuGrid = document.getElementById('menuGrid');
+      // DOM elements
+      const form = document.getElementById('billForm');
+      const voiceInput = document.getElementById('voiceInput');
 
-        // Load menu items on page load
-        window.addEventListener('load', loadMenuItems);
+      const generateBtn = document.getElementById('generateBtn');
+      const loading = document.getElementById('loading');
+      const result = document.getElementById('result');
+      const error = document.getElementById('error');
+      const billDetails = document.getElementById('billDetails');
+      const errorMessage = document.getElementById('errorMessage');
+      const menuGrid = document.getElementById('menuGrid');
 
-        // Form submission
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await generateBill();
-        });
+      // Load menu items on page load
+      window.addEventListener('load', loadMenuItems);
 
-        // Load menu items
-        async function loadMenuItems() {
-            try {
-                const response = await fetch(`${API_BASE}/menu`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    displayMenuItems(data.menuItems);
-                }
-            } catch (err) {
-                console.error('Error loading menu:', err);
-            }
+      // Form submission
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await generateBill();
+      });
+
+      // Load menu items
+      async function loadMenuItems() {
+        try {
+          const response = await fetch(`${API_BASE}/menu`);
+          const data = await response.json();
+
+          if (data.success) {
+            displayMenuItems(data.menuItems);
+          }
+        } catch (err) {
+          console.error('Error loading menu:', err);
         }
+      }
 
-        // Display menu items
-        function displayMenuItems(menuItems) {
-            menuGrid.innerHTML = menuItems.map(item => `
+      // Display menu items
+      function displayMenuItems(menuItems) {
+        menuGrid.innerHTML = menuItems
+          .map(
+            (item) => `
                 <div class="menu-item">
                     <div class="menu-item-name">${item.name}</div>
                     <div class="menu-item-tamil">${item.tamilName}</div>
                     <div class="menu-item-price">₹${item.price} per ${item.unit}</div>
                 </div>
-            `).join('');
+            `
+          )
+          .join('');
+      }
+
+      // Generate bill
+      async function generateBill() {
+        // Show loading, hide other states
+        loading.classList.remove('hidden');
+        result.classList.add('hidden');
+        error.classList.add('hidden');
+        generateBtn.disabled = true;
+
+        try {
+          const requestData = {
+            voiceInput: voiceInput.value.trim(),
+          };
+
+          const response = await fetch(`${API_BASE}/generate-bill`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            displayBill(data.bill);
+          } else {
+            throw new Error(data.message || 'Failed to generate bill');
+          }
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          loading.classList.add('hidden');
+          generateBtn.disabled = false;
         }
+      }
 
-        // Generate bill
-        async function generateBill() {
-            // Show loading, hide other states
-            loading.classList.remove('hidden');
-            result.classList.add('hidden');
-            error.classList.add('hidden');
-            generateBtn.disabled = true;
-
-            try {
-                const requestData = {
-                    voiceInput: voiceInput.value.trim()
-                };
-
-                const response = await fetch(`${API_BASE}/generate-bill`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    displayBill(data.bill);
-                } else {
-                    throw new Error(data.message || 'Failed to generate bill');
-                }
-
-            } catch (err) {
-                showError(err.message);
-            } finally {
-                loading.classList.add('hidden');
-                generateBtn.disabled = false;
-            }
-        }
-
-        // Display bill
-        function displayBill(bill) {
-            billDetails.innerHTML = `
+      // Display bill
+      function displayBill(bill) {
+        billDetails.innerHTML = `
                 <div class="bill-header">
                     <div class="bill-id">Bill ID: ${bill._id}</div>
                     <div class="total-amount">₹${bill.total}</div>
                 </div>
 
                 <div class="items-list">
-                    ${bill.items.map(item => `
+                    ${bill.items
+                      .map(
+                        (item) => `
                         <div class="item">
                             <div class="item-name">${item.quantity}x ${item.itemName}</div>
                             <div class="item-details">
@@ -412,7 +421,9 @@
                                 <div class="item-price">₹${item.totalPrice}</div>
                             </div>
                         </div>
-                    `).join('')}
+                    `
+                      )
+                      .join('')}
                 </div>
 
                 <div class="bill-info">
@@ -422,41 +433,45 @@
                 </div>
             `;
 
-            result.classList.remove('hidden');
-        }
+        result.classList.remove('hidden');
+      }
 
-        // Show error
-        function showError(message) {
-            errorMessage.textContent = message;
-            error.classList.remove('hidden');
-        }
+      // Show error
+      function showError(message) {
+        errorMessage.textContent = message;
+        error.classList.remove('hidden');
+      }
 
-        // Add some sample voice inputs for testing
-        const sampleInputs = [
-            "2 dosa and 1 masala dosa and 2 idly and coffee",
-            "3 parota and 1 sambar rice",
-            "1 coffee and 2 tea",
-            "2 vada and 1 pongal"
-        ];
+      // Add some sample voice inputs for testing
+      const sampleInputs = [
+        '2 dosa and 1 masala dosa and 2 idly and coffee',
+        '3 parota and 1 sambar rice',
+        '1 coffee and 2 tea',
+        '2 vada and 1 pongal',
+      ];
 
-        // Add sample input buttons
-        const sampleContainer = document.createElement('div');
-        sampleContainer.style.marginBottom = '20px';
-        sampleContainer.innerHTML = `
+      // Add sample input buttons
+      const sampleContainer = document.createElement('div');
+      sampleContainer.style.marginBottom = '20px';
+      sampleContainer.innerHTML = `
             <h4 style="margin-bottom: 10px; color: #666;">🧪 Sample Inputs (Click to test):</h4>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                ${sampleInputs.map(input => `
+                ${sampleInputs
+                  .map(
+                    (input) => `
                     <button type="button" 
                             onclick="voiceInput.value='${input}'" 
                             style="padding: 8px 15px; background: #e9ecef; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">
                         "${input.length > 30 ? input.substring(0, 30) + '...' : input}"
                     </button>
-                `).join('')}
+                `
+                  )
+                  .join('')}
             </div>
         `;
 
-        // Insert sample inputs before the form
-        form.parentNode.insertBefore(sampleContainer, form);
+      // Insert sample inputs before the form
+      form.parentNode.insertBefore(sampleContainer, form);
     </script>
-</body>
+  </body>
 </html>

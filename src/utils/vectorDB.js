@@ -23,10 +23,10 @@ if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
 const generateEmbedding = async (text) => {
   try {
     const response = await openai.embeddings.create({
-      model: "text-embedding-ada-002",
+      model: 'text-embedding-ada-002',
       input: text,
     });
-    
+
     return response.data[0].embedding;
   } catch (error) {
     console.error('Error generating embedding:', error);
@@ -47,13 +47,13 @@ const storeChunksInSupabase = async (chunks, planId) => {
 
   try {
     console.log(`🔄 Storing ${chunks.length} chunks in Supabase Vector...`);
-    
+
     const vectors = [];
-    
+
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const embedding = await generateEmbedding(chunk.text);
-      
+
       vectors.push({
         id: `${planId}_chunk_${i}`,
         content: chunk.text,
@@ -61,28 +61,27 @@ const storeChunksInSupabase = async (chunks, planId) => {
           planId: planId,
           chunkIndex: i,
           chunkType: chunk.type || 'text',
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         },
-        embedding: embedding
+        embedding: embedding,
       });
     }
-    
+
     // Insert vectors into Supabase
     const { data, error } = await supabase
       .from('nutrition_plan_chunks')
       .insert(vectors);
-    
+
     if (error) {
       throw new Error(`Supabase insert error: ${error.message}`);
     }
-    
+
     console.log('✅ Chunks stored successfully in Supabase');
     return {
       success: true,
       chunksStored: chunks.length,
-      planId: planId
+      planId: planId,
     };
-    
   } catch (error) {
     console.error('Error storing chunks in Supabase:', error);
     throw error;
@@ -103,20 +102,19 @@ const searchChunksInSupabase = async (query, planId, limit = 5) => {
 
   try {
     const queryEmbedding = await generateEmbedding(query);
-    
+
     const { data, error } = await supabase.rpc('match_chunks', {
       query_embedding: queryEmbedding,
       match_threshold: 0.7,
       match_count: limit,
-      filter_plan_id: planId
+      filter_plan_id: planId,
     });
-    
+
     if (error) {
       throw new Error(`Supabase search error: ${error.message}`);
     }
-    
+
     return data || [];
-    
   } catch (error) {
     console.error('Error searching chunks in Supabase:', error);
     throw error;
@@ -134,14 +132,14 @@ const storeChunks = async (chunks, planId) => {
   if (supabase) {
     return await storeChunksInSupabase(chunks, planId);
   }
-  
+
   // Fallback: Store in memory (for development/testing)
   console.log('⚠️  No vector database configured, storing in memory');
   return {
     success: true,
     chunksStored: chunks.length,
     planId: planId,
-    warning: 'Stored in memory - not persistent'
+    warning: 'Stored in memory - not persistent',
   };
 };
 
@@ -157,7 +155,7 @@ const searchChunks = async (query, planId, limit = 5) => {
   if (supabase) {
     return await searchChunksInSupabase(query, planId, limit);
   }
-  
+
   // Fallback: Return empty array
   console.log('⚠️  No vector database configured, returning empty results');
   return [];
@@ -178,13 +176,12 @@ const clearPlanChunks = async (planId) => {
       .from('nutrition_plan_chunks')
       .delete()
       .eq('metadata->planId', planId);
-    
+
     if (error) {
       throw new Error(`Supabase delete error: ${error.message}`);
     }
-    
+
     return { success: true, message: 'Plan chunks cleared' };
-    
   } catch (error) {
     console.error('Error clearing plan chunks:', error);
     throw error;
@@ -197,5 +194,5 @@ module.exports = {
   searchChunks,
   clearPlanChunks,
   storeChunksInSupabase,
-  searchChunksInSupabase
-}; 
+  searchChunksInSupabase,
+};

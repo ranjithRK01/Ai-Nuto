@@ -7,7 +7,7 @@ const {
   askQuestion,
   getCurrentPlanInfo,
   clearPlan,
-  healthCheck
+  healthCheck,
 } = require('../controllers/nutritionController');
 
 const router = express.Router();
@@ -18,10 +18,10 @@ const storage = multer.diskStorage({
     cb(null, process.env.UPLOAD_DIR || 'uploads/');
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const extension = path.extname(file.originalname);
     cb(null, 'nutrition-plan-' + uniqueSuffix + extension);
-  }
+  },
 });
 
 const upload = multer({
@@ -32,21 +32,24 @@ const upload = multer({
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/msword',
-      'text/plain'
+      'text/plain',
     ];
-    
+
     const allowedExtensions = ['.pdf', '.docx', '.doc', '.txt'];
     const fileExtension = path.extname(file.originalname).toLowerCase();
-    
-    if (allowedMimeTypes.includes(file.mimetype) || allowedExtensions.includes(fileExtension)) {
+
+    if (
+      allowedMimeTypes.includes(file.mimetype) ||
+      allowedExtensions.includes(fileExtension)
+    ) {
       cb(null, true);
     } else {
       cb(new Error('Only PDF, DOCX, DOC, and text files are allowed'), false);
     }
   },
   limits: {
-    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024 // 10MB limit
-  }
+    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB limit
+  },
 });
 
 // Rate limiting configuration
@@ -56,10 +59,10 @@ const uploadLimiter = rateLimit({
   message: {
     error: 'Too many upload requests',
     message: 'Please wait before uploading another nutrition plan.',
-    retryAfter: '15 minutes'
+    retryAfter: '15 minutes',
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 
 const questionLimiter = rateLimit({
@@ -68,10 +71,10 @@ const questionLimiter = rateLimit({
   message: {
     error: 'Too many questions',
     message: 'Please wait before asking another question.',
-    retryAfter: '1 minute'
+    retryAfter: '1 minute',
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 
 // Routes
@@ -95,19 +98,20 @@ router.get('/', (req, res) => {
       uploadPlan: 'POST /upload-plan',
       getPlan: 'GET /plan',
       clearPlan: 'DELETE /plan',
-      askQuestion: 'POST /ask'
+      askQuestion: 'POST /ask',
     },
     fileTypes: ['PDF', 'DOCX', 'DOC', 'TXT'],
     maxFileSize: '10MB',
     rateLimits: {
       uploads: '10 per 15 minutes',
-      questions: '30 per minute'
+      questions: '30 per minute',
     },
     instructions: {
-      upload: 'Upload a nutrition plan file using multipart/form-data with field name "plan"',
-      ask: 'Send a JSON body with "question" field to get AI-powered answers about your plan'
-    }
+      upload:
+        'Upload a nutrition plan file using multipart/form-data with field name "plan"',
+      ask: 'Send a JSON body with "question" field to get AI-powered answers about your plan',
+    },
   });
 });
 
-module.exports = router; 
+module.exports = router;

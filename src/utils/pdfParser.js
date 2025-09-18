@@ -15,7 +15,9 @@ try {
       // Try the ES5 build (for very old versions)
       pdfjsLib = require('pdfjs-dist/es5/build/pdf.js');
     } catch (error3) {
-      console.warn('⚠️  PDF.js not available for fallback parsing. Only pdf-parse will be used.');
+      console.warn(
+        '⚠️  PDF.js not available for fallback parsing. Only pdf-parse will be used.'
+      );
       pdfjsLib = null;
     }
   }
@@ -49,24 +51,24 @@ const parsePDF = async (dataBuffer) => {
       console.log('🔄 Attempting to parse PDF with PDF.js...');
       const loadingTask = pdfjsLib.getDocument({ data: dataBuffer });
       const pdf = await loadingTask.promise;
-      
+
       let fullText = '';
       const numPages = pdf.numPages;
-      
+
       for (let pageNum = 1; pageNum <= numPages; pageNum++) {
         const page = await pdf.getPage(pageNum);
         const textContent = await page.getTextContent();
-        const pageText = textContent.items.map(item => item.str).join(' ');
+        const pageText = textContent.items.map((item) => item.str).join(' ');
         fullText += pageText + '\n';
       }
-      
+
       if (fullText.trim().length > 0) {
         console.log('✅ PDF parsed successfully with PDF.js');
         return {
           text: fullText,
           numpages: numPages,
           info: {},
-          metadata: {}
+          metadata: {},
         };
       }
     } catch (err) {
@@ -92,12 +94,12 @@ const validatePDF = (dataBuffer) => {
   if (pdfSignature !== '%PDF') {
     throw new Error('File is not a valid PDF (missing PDF signature)');
   }
-  
+
   // Check file size
   if (dataBuffer.length < 100) {
     throw new Error('PDF file is too small to be valid');
   }
-  
+
   return true;
 };
 
@@ -108,34 +110,36 @@ const validatePDF = (dataBuffer) => {
  */
 const attemptPDFRepair = (dataBuffer) => {
   const data = dataBuffer.toString('binary');
-  
+
   // Check for truncated XRef table (common issue)
   if (data.includes('xref') && !data.includes('trailer')) {
-    console.log('⚠️  Detected potential XRef table corruption, attempting repair...');
-    
+    console.log(
+      '⚠️  Detected potential XRef table corruption, attempting repair...'
+    );
+
     // Try to find the last complete object and add a basic trailer
     const lines = data.split('\n');
     let lastObjectIndex = -1;
-    
+
     for (let i = lines.length - 1; i >= 0; i--) {
       if (lines[i].match(/^\d+ \d+ obj$/)) {
         lastObjectIndex = i;
         break;
       }
     }
-    
+
     if (lastObjectIndex > 0) {
       // Add a basic trailer
       const repairedData = data + '\ntrailer\n<</Root 1 0 R>>\n%%EOF';
       return Buffer.from(repairedData, 'binary');
     }
   }
-  
+
   return dataBuffer;
 };
 
 module.exports = {
   parsePDF,
   validatePDF,
-  attemptPDFRepair
-}; 
+  attemptPDFRepair,
+};

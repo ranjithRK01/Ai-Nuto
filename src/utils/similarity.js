@@ -8,24 +8,24 @@ const cosineSimilarity = (vectorA, vectorB) => {
   if (vectorA.length !== vectorB.length) {
     throw new Error('Vectors must have the same length');
   }
-  
+
   let dotProduct = 0;
   let normA = 0;
   let normB = 0;
-  
+
   for (let i = 0; i < vectorA.length; i++) {
     dotProduct += vectorA[i] * vectorB[i];
     normA += vectorA[i] * vectorA[i];
     normB += vectorB[i] * vectorB[i];
   }
-  
+
   normA = Math.sqrt(normA);
   normB = Math.sqrt(normB);
-  
+
   if (normA === 0 || normB === 0) {
     return 0;
   }
-  
+
   return dotProduct / (normA * normB);
 };
 
@@ -37,19 +37,19 @@ const cosineSimilarity = (vectorA, vectorB) => {
  * @returns {Array} - Array of top N chunks with similarity scores
  */
 const findTopSimilarChunks = (queryEmbedding, chunks, topN = 3) => {
-  const similarities = chunks.map(chunk => ({
+  const similarities = chunks.map((chunk) => ({
     chunk,
-    similarity: cosineSimilarity(queryEmbedding, chunk.embedding)
+    similarity: cosineSimilarity(queryEmbedding, chunk.embedding),
   }));
-  
+
   // Sort by similarity score (descending)
   similarities.sort((a, b) => b.similarity - a.similarity);
-  
+
   // Return top N results
   return similarities.slice(0, topN);
 };
 
 module.exports = {
   cosineSimilarity,
-  findTopSimilarChunks
-}; 
+  findTopSimilarChunks,
+};

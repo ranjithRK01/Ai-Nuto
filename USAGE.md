@@ -3,6 +3,7 @@
 ## 🚀 Getting Started
 
 ### 1. Setup Environment
+
 ```bash
 # Copy environment file
 cp env.example .env
@@ -12,9 +13,11 @@ OPENAI_API_KEY=sk-your-actual-api-key-here
 ```
 
 ### 2. Start MongoDB
+
 Make sure MongoDB is running on your system or use MongoDB Atlas.
 
 ### 3. Start the Server
+
 ```bash
 npm run dev
 ```
@@ -26,11 +29,13 @@ Server will start on `http://localhost:5000`
 ### Using Postman
 
 #### 1. Health Check
+
 - **Method**: GET
 - **URL**: `http://localhost:5000/api/health`
 - **Expected Response**: Server status
 
 #### 2. Upload PDF
+
 - **Method**: POST
 - **URL**: `http://localhost:5000/api/upload`
 - **Body**: form-data
@@ -39,10 +44,12 @@ Server will start on `http://localhost:5000`
 - **Expected Response**: Processing results
 
 #### 3. Ask Question
+
 - **Method**: POST
 - **URL**: `http://localhost:5000/api/ask`
 - **Headers**: `Content-Type: application/json`
 - **Body**: raw (JSON)
+
 ```json
 {
   "question": "What foods should I avoid?"
@@ -50,21 +57,25 @@ Server will start on `http://localhost:5000`
 ```
 
 #### 4. View Chunks (Debug)
+
 - **Method**: GET
 - **URL**: `http://localhost:5000/api/chunks`
 
 #### 5. Clear Data (Testing)
+
 - **Method**: DELETE
 - **URL**: `http://localhost:5000/api/chunks`
 
 ### Using curl
 
 #### Health Check
+
 ```bash
 curl http://localhost:5000/api/health
 ```
 
 #### Upload PDF
+
 ```bash
 curl -X POST \
   http://localhost:5000/api/upload \
@@ -72,6 +83,7 @@ curl -X POST \
 ```
 
 #### Ask Question
+
 ```bash
 curl -X POST \
   http://localhost:5000/api/ask \
@@ -80,11 +92,13 @@ curl -X POST \
 ```
 
 #### View Chunks
+
 ```bash
 curl http://localhost:5000/api/chunks
 ```
 
 #### Clear Data
+
 ```bash
 curl -X DELETE http://localhost:5000/api/chunks
 ```
@@ -92,6 +106,7 @@ curl -X DELETE http://localhost:5000/api/chunks
 ## 🧪 Testing Workflow
 
 ### 1. Initial Setup
+
 ```bash
 # Start the server
 npm run dev
@@ -101,11 +116,13 @@ node test-api.js
 ```
 
 ### 2. Upload a Nutrition Plan
+
 1. Prepare a PDF nutrition plan
 2. Use Postman or curl to upload it
 3. Verify the response shows chunks were created
 
 ### 3. Ask Questions
+
 1. Ask specific questions about the nutrition plan
 2. Test various types of questions:
    - "What can I eat for breakfast?"
@@ -114,6 +131,7 @@ node test-api.js
    - "Can I have snacks between meals?"
 
 ### 4. Debug and Monitor
+
 - Use `/api/chunks` to see stored data
 - Check similarity scores in responses
 - Monitor console logs for processing details
@@ -121,6 +139,7 @@ node test-api.js
 ## 📊 Expected Responses
 
 ### Successful PDF Upload
+
 ```json
 {
   "success": true,
@@ -131,6 +150,7 @@ node test-api.js
 ```
 
 ### Successful Question Answer
+
 ```json
 {
   "success": true,
@@ -142,6 +162,7 @@ node test-api.js
 ```
 
 ### Error Responses
+
 ```json
 {
   "error": "No PDF file uploaded"
@@ -209,4 +230,4 @@ curl -X DELETE http://localhost:5000/api/chunks
 
 ---
 
-**Happy testing! 🚀** 
+**Happy testing! 🚀**

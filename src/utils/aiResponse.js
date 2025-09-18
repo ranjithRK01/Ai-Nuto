@@ -12,15 +12,24 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const generateRAGResponse = async (question, relevantChunks, planId) => {
   try {
     // Safety-critical keywords where we must refer to nutritionist
-    const safetyKeywords = ["allergy", "diabetes", "pregnant", "blood pressure", "cholesterol", "kidney", "liver"];
+    const safetyKeywords = [
+      'allergy',
+      'diabetes',
+      'pregnant',
+      'blood pressure',
+      'cholesterol',
+      'kidney',
+      'liver',
+    ];
 
     // Check if question contains a safety keyword
-    if (safetyKeywords.some(k => question.toLowerCase().includes(k))) {
+    if (safetyKeywords.some((k) => question.toLowerCase().includes(k))) {
       return {
-        answer: "This might need a personalized approach. Please ask your nutritionist to be safe.",
+        answer:
+          'This might need a personalized approach. Please ask your nutritionist to be safe.',
         citations: [],
         confidence: 0,
-        chunksUsed: 0
+        chunksUsed: 0,
       };
     }
 
@@ -31,7 +40,7 @@ const generateRAGResponse = async (question, relevantChunks, planId) => {
     } else {
       // fallback fuzzy match search
       const allPlanChunks = await getAllPlanChunks(planId); // you should implement this to load all meal plan text
-      const matches = allPlanChunks.filter(chunk => {
+      const matches = allPlanChunks.filter((chunk) => {
         const score = stringSimilarity.compareTwoStrings(
           question.toLowerCase(),
           chunk.text.toLowerCase()
@@ -44,20 +53,21 @@ const generateRAGResponse = async (question, relevantChunks, planId) => {
     // If still no matches, provide a safe generic response
     if (chunksToUse.length === 0) {
       return {
-        answer: "Your plan doesn’t mention this exactly, but generally a light snack like fruit or nuts is fine unless advised otherwise.",
+        answer:
+          'Your plan doesn’t mention this exactly, but generally a light snack like fruit or nuts is fine unless advised otherwise.',
         citations: [],
         confidence: 0.4,
-        chunksUsed: 0
+        chunksUsed: 0,
       };
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     // Build context from relevant chunks (max 5 to avoid overload)
     const context = chunksToUse
       .slice(0, 5)
       .map((chunk, index) => `[Chunk ${index + 1}]: ${chunk.text}`)
-      .join("\n\n");
+      .join('\n\n');
 
     const prompt = `
 You are a friendly nutrition specialist answering questions based on a meal plan.
@@ -90,16 +100,16 @@ Give a short, friendly answer (max 3 lines) based only on the plan above.
       answer,
       citations,
       confidence,
-      chunksUsed: chunksToUse.length
+      chunksUsed: chunksToUse.length,
     };
-
   } catch (error) {
-    console.error("Error generating RAG response:", error);
+    console.error('Error generating RAG response:', error);
     return {
-      answer: "Sorry, I can't answer right now. Try again later or ask your nutritionist.",
+      answer:
+        "Sorry, I can't answer right now. Try again later or ask your nutritionist.",
       citations: [],
       confidence: 0,
-      chunksUsed: 0
+      chunksUsed: 0,
     };
   }
 };
@@ -113,15 +123,15 @@ const generatePlanSummary = async (chunks) => {
   try {
     if (!chunks || chunks.length === 0) {
       return {
-        summary: "No meal plan found.",
-        sections: []
+        summary: 'No meal plan found.',
+        sections: [],
       };
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     // Combine all chunks for summary
-    const fullText = chunks.map(chunk => chunk.text).join('\n\n');
+    const fullText = chunks.map((chunk) => chunk.text).join('\n\n');
 
     const prompt = `Summarize this meal plan in simple terms:
 
@@ -143,22 +153,26 @@ SECTIONS: [comma-separated list]`;
     const summaryMatch = summaryText.match(/SUMMARY:\s*(.+?)(?=\n|$)/i);
     const sectionsMatch = summaryText.match(/SECTIONS:\s*(.+?)(?=\n|$)/i);
 
-    const summary = summaryMatch ? summaryMatch[1].trim() : "Meal plan with daily nutrition guidelines.";
-    const sections = sectionsMatch 
-      ? sectionsMatch[1].split(',').map(s => s.trim()).filter(s => s.length > 0)
+    const summary = summaryMatch
+      ? summaryMatch[1].trim()
+      : 'Meal plan with daily nutrition guidelines.';
+    const sections = sectionsMatch
+      ? sectionsMatch[1]
+          .split(',')
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0)
       : ['Daily Meals'];
 
     return {
       summary: summary,
-      sections: sections
+      sections: sections,
     };
-
   } catch (error) {
     console.error('Error generating plan summary:', error);
-    
+
     return {
-      summary: "Meal plan with daily nutrition guidelines.",
-      sections: ['Daily Meals']
+      summary: 'Meal plan with daily nutrition guidelines.',
+      sections: ['Daily Meals'],
     };
   }
 };
@@ -171,19 +185,23 @@ SECTIONS: [comma-separated list]`;
  */
 const extractCitations = (answer, chunks) => {
   const citations = [];
-  
+
   // Look for chunk references in the answer
   chunks.forEach((chunk, index) => {
-    const chunkWords = chunk.text.split(' ').slice(0, 10).join(' ').toLowerCase();
+    const chunkWords = chunk.text
+      .split(' ')
+      .slice(0, 10)
+      .join(' ')
+      .toLowerCase();
     if (answer.toLowerCase().includes(chunkWords.substring(0, 50))) {
       citations.push({
         chunkIndex: index + 1,
         text: chunk.text.substring(0, 100) + '...',
-        section: chunk.metadata?.sectionTitle || 'Meal Plan'
+        section: chunk.metadata?.sectionTitle || 'Meal Plan',
       });
     }
   });
-  
+
   return citations.slice(0, 3); // Limit to top 3 citations
 };
 
@@ -196,10 +214,11 @@ const calculateConfidence = (chunks) => {
   if (!chunks || chunks.length === 0) {
     return 0;
   }
-  
+
   // Calculate average similarity score
-  const avgScore = chunks.reduce((sum, chunk) => sum + (chunk.score || 0), 0) / chunks.length;
-  
+  const avgScore =
+    chunks.reduce((sum, chunk) => sum + (chunk.score || 0), 0) / chunks.length;
+
   // Normalize to 0-1 range
   return Math.min(Math.max(avgScore, 0), 1);
 };
@@ -208,5 +227,5 @@ module.exports = {
   generateRAGResponse,
   generatePlanSummary,
   extractCitations,
-  calculateConfidence
-}; 
+  calculateConfidence,
+};

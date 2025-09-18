@@ -17,7 +17,9 @@ async function testMVP() {
     const apiResponse = await axios.get(`${BASE_URL}/`);
     console.log('✅ API documentation loaded');
     console.log(`   Version: ${apiResponse.data.version}`);
-    console.log(`   Endpoints: ${Object.keys(apiResponse.data.endpoints).length}`);
+    console.log(
+      `   Endpoints: ${Object.keys(apiResponse.data.endpoints).length}`
+    );
     console.log('');
 
     // Test 3: Get Current Plan (should be empty initially)
@@ -37,7 +39,7 @@ async function testMVP() {
     console.log('4. Testing ask question without plan...');
     try {
       await axios.post(`${BASE_URL}/ask`, {
-        question: "What can I eat for breakfast?"
+        question: 'What can I eat for breakfast?',
       });
     } catch (error) {
       if (error.response && error.response.status === 404) {
@@ -71,9 +73,10 @@ async function testMVP() {
 
     console.log('\n🔧 Configuration needed:');
     console.log('- OPENAI_API_KEY: Your OpenAI API key');
-    console.log('- SUPABASE_URL & SUPABASE_SERVICE_ROLE_KEY (for vector storage)');
+    console.log(
+      '- SUPABASE_URL & SUPABASE_SERVICE_ROLE_KEY (for vector storage)'
+    );
     console.log('- Or PINECONE_API_KEY (alternative vector storage)');
-
   } catch (error) {
     console.error('❌ Test failed:', error.message);
     if (error.code === 'ECONNREFUSED') {
@@ -84,4 +87,4 @@ async function testMVP() {
 }
 
 // Run tests
-testMVP(); 
+testMVP();

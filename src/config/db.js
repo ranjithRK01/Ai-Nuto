@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || "mongodb+srv://ranjithRk01:IH7Z2BW2rBJTTTYu@reqsta.ntqrp.mongodb.net/reqsta?retryWrites=true&w=majority&appName=nutrition-ai";
-    
+    const mongoUri ='mongodb+srv://ranjithRk01:IH7Z2BW2rBJTTTYu@reqsta.ntqrp.mongodb.net/reqsta?retryWrites=true&w=majority&appName=nutrition-ai'
+      // 'mongodb+srv://merndevops:n7bgcMuvFuCMzTPC@cluster0.jkeze.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+
     const conn = await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -11,23 +12,24 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
-    
+
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`📊 Database: ${conn.connection.name}`);
-    
+
     // Create vector search index if it doesn't exist (only for Atlas)
-    if (true) {
-      await createVectorSearchIndex();
-    } else {
-      console.log('💡 Local MongoDB detected - vector search will use cosine similarity fallback');
-    }
-    
+    // if (true) {
+    //   await createVectorSearchIndex();
+    // } else {
+    //   console.log('💡 Local MongoDB detected - vector search will use cosine similarity fallback');
+    // }
+
     // Return the connection for external use
     return conn;
-    
   } catch (error) {
     console.error('❌ Error connecting to MongoDB:', error.message);
-    console.log('💡 Make sure MongoDB is running and MONGO_URI is set in .env file');
+    console.log(
+      '💡 Make sure MongoDB is running and MONGO_URI is set in .env file'
+    );
     process.exit(1);
   }
 };
@@ -38,37 +40,38 @@ const connectDB = async () => {
 const createVectorSearchIndex = async () => {
   try {
     const db = mongoose.connection.db;
-    
+
     // Check if index already exists
     const indexes = await db.collection('nutrition_plan_chunks').indexes();
-    const vectorIndexExists = indexes.some(index => 
-      index.name === 'vector_search_index'
+    const vectorIndexExists = indexes.some(
+      (index) => index.name === 'vector_search_index'
     );
-    
+
     if (!vectorIndexExists) {
       console.log('🔧 Creating vector search index...');
-      
+
       await db.collection('nutrition_plan_chunks').createIndex(
-        { embedding: "vector" },
+        { embedding: 'vector' },
         {
-          name: "vector_search_index",
+          name: 'vector_search_index',
           vectorSize: 1536,
           vectorSearchOptions: {
             numCandidates: 100,
-            indexType: "hnsw"
-          }
+            indexType: 'hnsw',
+          },
         }
       );
-      
+
       console.log('✅ Vector search index created successfully');
     } else {
       console.log('✅ Vector search index already exists');
     }
-    
   } catch (error) {
     console.warn('⚠️  Could not create vector search index:', error.message);
-    console.log('💡 This is normal for local MongoDB. Vector search will work with MongoDB Atlas.');
+    console.log(
+      '💡 This is normal for local MongoDB. Vector search will work with MongoDB Atlas.'
+    );
   }
 };
 
-module.exports = connectDB; 
+module.exports = connectDB;
