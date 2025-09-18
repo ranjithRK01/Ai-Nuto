@@ -7,6 +7,8 @@ const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const nutritionRoutes = require('./routes/nutritionRoutes');
 const billRoutes = require('./routes/billRoutes');
+const menuRoutes = require('./routes/menuRoutes');
+const genericBillRoutes = require('./routes/genericBillRoutes');
 const shopRouter = require('./routes/shopRoutes');
 
 const app = express();
@@ -37,6 +39,15 @@ const initializeServer = async () => {
     // Initialize menu items after database connection
     const { initializeMenu } = require('./controllers/billController');
     await initializeMenu();
+
+    // Sync indexes for updated models (drops obsolete ones like legacy unique name index)
+    try {
+      const MenuItem = require('./models/MenuItem');
+      await MenuItem.syncIndexes();
+      console.log('✅ MenuItem indexes synchronized');
+    } catch (idxErr) {
+      console.warn('⚠️  Could not sync MenuItem indexes:', idxErr.message);
+    }
 
     console.log('✅ Server initialization completed');
   } catch (error) {
@@ -75,6 +86,8 @@ app.get('/api/health', (req, res) => {
 // API routes
 app.use('/api', nutritionRoutes);
 app.use('/api/bill', billRoutes);
+app.use('/api/menu', menuRoutes);
+app.use('/api/generic-bill', genericBillRoutes);
 app.use('/api/shop', shopRouter);
 
 // Root route with API documentation
@@ -171,9 +184,14 @@ app.use('*', (req, res) => {
       'GET /api/plan',
       'DELETE /api/plan',
       'POST /api/ask',
+      'GET /api/menu',
+      'POST /api/menu',
+      'POST /api/menu/bulk',
+      'GET /api/menu/categories',
       'POST /api/bill/generate-bill',
       'GET /api/bill/bills',
       'GET /api/bill/menu',
+      'POST /api/generic-bill/generate-bill',
       'POST /api/shop/register',
       'GET /api/shop/shop-list',
     ],
