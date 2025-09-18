@@ -7,7 +7,7 @@ const {
   getAllMenuItems,
   addMenuItem,
   updateMenuItem,
-  deleteMenuItem
+  deleteMenuItem,
 } = require('../controllers/billController');
 
 // Bill generation routes

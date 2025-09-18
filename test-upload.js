@@ -10,23 +10,28 @@ const TEST_FILE_PATH = './test-nutrition-plan.txt'; // We'll use the existing te
 async function testUpload() {
   try {
     console.log('🧪 Testing Nutrition AI Backend...\n');
-    
+
     // Test 1: Health Check
     console.log('1️⃣ Testing Health Check...');
     try {
       const healthResponse = await axios.get(`${API_BASE_URL}/health`);
       console.log('✅ Health Check:', healthResponse.data);
     } catch (error) {
-      console.log('❌ Health Check Failed:', error.response?.data || error.message);
+      console.log(
+        '❌ Health Check Failed:',
+        error.response?.data || error.message
+      );
     }
-    
+
     // Test 2: Upload Plan
     console.log('\n2️⃣ Testing Plan Upload...');
-    
+
     // Check if test file exists
     if (!fs.existsSync(TEST_FILE_PATH)) {
-      console.log('⚠️  Test file not found. Creating a sample nutrition plan...');
-      
+      console.log(
+        '⚠️  Test file not found. Creating a sample nutrition plan...'
+      );
+
       const samplePlan = `NUTRITION PLAN
 
 BREAKFAST (7:00 AM)
@@ -64,21 +69,25 @@ RESTRICTIONS
       fs.writeFileSync(TEST_FILE_PATH, samplePlan);
       console.log('✅ Sample nutrition plan created');
     }
-    
+
     // Create form data with correct field name
     const formData = new FormData();
     formData.append('plan', fs.createReadStream(TEST_FILE_PATH));
-    
-    const uploadResponse = await axios.post(`${API_BASE_URL}/upload-plan`, formData, {
-      headers: {
-        ...formData.getHeaders(),
-      },
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity
-    });
-    
+
+    const uploadResponse = await axios.post(
+      `${API_BASE_URL}/upload-plan`,
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      }
+    );
+
     console.log('✅ Upload Successful:', uploadResponse.data);
-    
+
     // Test 3: Get Current Plan
     console.log('\n3️⃣ Testing Get Current Plan...');
     try {
@@ -87,34 +96,36 @@ RESTRICTIONS
     } catch (error) {
       console.log('❌ Get Plan Failed:', error.response?.data || error.message);
     }
-    
+
     // Test 4: Ask Question
     console.log('\n4️⃣ Testing Question Answering...');
     try {
       const questionResponse = await axios.post(`${API_BASE_URL}/ask`, {
-        question: "What should I eat for breakfast?"
+        question: 'What should I eat for breakfast?',
       });
       console.log('✅ Question Answer:', questionResponse.data);
     } catch (error) {
       console.log('❌ Question Failed:', error.response?.data || error.message);
     }
-    
+
     // Test 5: Ask Another Question
     console.log('\n5️⃣ Testing Another Question...');
     try {
       const questionResponse2 = await axios.post(`${API_BASE_URL}/ask`, {
-        question: "Are there any food restrictions in my plan?"
+        question: 'Are there any food restrictions in my plan?',
       });
       console.log('✅ Second Question Answer:', questionResponse2.data);
     } catch (error) {
-      console.log('❌ Second Question Failed:', error.response?.data || error.message);
+      console.log(
+        '❌ Second Question Failed:',
+        error.response?.data || error.message
+      );
     }
-    
+
     console.log('\n🎉 All tests completed!');
-    
   } catch (error) {
     console.error('❌ Test failed:', error.response?.data || error.message);
-    
+
     if (error.response?.status === 500) {
       console.log('\n💡 Troubleshooting tips:');
       console.log('1. Make sure MongoDB is running');
@@ -125,4 +136,4 @@ RESTRICTIONS
 }
 
 // Run the test
-testUpload(); 
+testUpload();

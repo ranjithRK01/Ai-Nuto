@@ -7,6 +7,7 @@
 **What it means:** The PDF's cross-reference table is corrupted or malformed.
 
 **Solutions:**
+
 - **Try the enhanced parser** (now implemented with fallback methods)
 - **Re-save the PDF** in a PDF viewer (Adobe Reader, Chrome, etc.)
 - **Convert to different format** and back to PDF
@@ -17,6 +18,7 @@
 **What it means:** PDF contains only images, no selectable text.
 
 **Solutions:**
+
 - Ensure PDF has selectable text (try copying text from PDF)
 - Use OCR software to extract text
 - Convert image-based PDFs to text-based PDFs
@@ -26,6 +28,7 @@
 **What it means:** File doesn't have proper PDF signature.
 
 **Solutions:**
+
 - Verify file is actually a PDF (not renamed)
 - Check file extension is `.pdf`
 - Try downloading the file again
@@ -35,11 +38,13 @@
 The backend now includes:
 
 ### **Multiple Parsing Methods:**
+
 1. **pdf-parse** (primary method)
 2. **PDF.js** (fallback method)
 3. **PDF repair attempts** for common issues
 
 ### **Validation & Repair:**
+
 - PDF signature validation
 - XRef table repair attempts
 - File size validation
@@ -48,11 +53,13 @@ The backend now includes:
 ## 📋 **Testing Your PDF**
 
 ### **Step 1: Create a Test PDF**
+
 ```bash
 node create-test-pdf.js
 ```
 
 ### **Step 2: Convert to PDF**
+
 - Open `test-nutrition-plan.txt` in Word/Google Docs
 - Save as PDF
 - Or use online converters:
@@ -60,6 +67,7 @@ node create-test-pdf.js
   - https://smallpdf.com/txt-to-pdf
 
 ### **Step 3: Test Upload**
+
 ```bash
 curl -X POST \
   http://localhost:5000/api/upload \
@@ -80,6 +88,7 @@ Based on [Qoppa's solution](https://kbdeveloper.qoppa.com/how-to-fix-issue-with-
 ### **For Truncated PDFs:**
 
 According to [PDF-XChange forum](https://forum.pdf-xchange.com/viewtopic.php?t=6413):
+
 1. **Locate the last complete object**
 2. **Add a basic trailer dictionary**
 3. **Add "%%EOF" marker**
@@ -87,6 +96,7 @@ According to [PDF-XChange forum](https://forum.pdf-xchange.com/viewtopic.php?t=6
 ## 📊 **Vector Database Access**
 
 ### **View Stored Data:**
+
 ```bash
 # View all chunks (text only)
 curl http://localhost:5000/api/chunks
@@ -100,6 +110,7 @@ db.chunks.find({})
 ```
 
 ### **Data Structure:**
+
 ```javascript
 {
   chunkId: "chunk_1234567890_abc123",
@@ -112,12 +123,14 @@ db.chunks.find({})
 ## 🎯 **Best Practices**
 
 ### **For PDF Creation:**
+
 - Use text-based PDFs (not image-based)
 - Avoid password protection
 - Keep file size under 10MB
 - Use standard PDF viewers to create PDFs
 
 ### **For Testing:**
+
 - Start with simple text-based PDFs
 - Test with the provided sample nutrition plan
 - Verify text is selectable in the PDF
@@ -126,24 +139,29 @@ db.chunks.find({})
 ## 🔍 **Debugging Steps**
 
 ### **1. Check PDF Properties:**
+
 - File size
 - Number of pages
 - Text selectability
 - Creation method
 
 ### **2. Test with Different Tools:**
+
 - Adobe Reader
 - Chrome PDF viewer
 - Online PDF validators
 
 ### **3. Monitor Server Logs:**
+
 ```bash
 npm run dev
 # Watch console output for detailed error messages
 ```
 
 ### **4. Use Enhanced Error Messages:**
+
 The new parser provides:
+
 - Detailed error descriptions
 - Technical error codes
 - Specific suggestions
@@ -161,4 +179,4 @@ If you continue to have problems:
 
 ---
 
-**Remember:** The enhanced parser now handles most common PDF issues automatically! 🚀 
+**Remember:** The enhanced parser now handles most common PDF issues automatically! 🚀

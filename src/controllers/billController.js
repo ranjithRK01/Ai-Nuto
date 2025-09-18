@@ -463,7 +463,7 @@ const generateBillFromVoice = async (req, res) => {
     if (!voiceInput || typeof voiceInput !== 'string' || !voiceInput.trim()) {
       return res.status(400).json({
         error: 'Voice input required',
-        message: 'Please provide the voice input text'
+        message: 'Please provide the voice input text',
       });
     }
 
@@ -535,12 +535,13 @@ const generateBillFromVoice = async (req, res) => {
     if ((error.message || '').includes('Invalid bill structure')) {
       return res.status(500).json({
         error: 'AI processing error',
-        message: 'Failed to process voice input. Please try again with clearer speech.'
+        message:
+          'Failed to process voice input. Please try again with clearer speech.',
       });
     }
     return res.status(500).json({
       error: 'Internal server error',
-      message: 'Failed to generate bill. Please try again.'
+      message: 'Failed to generate bill. Please try again.',
     });
   }
 };
@@ -610,5 +611,5 @@ module.exports = {
   addMenuItem,
   updateMenuItem,
   deleteMenuItem,
-  initializeMenu
+  initializeMenu,
 };
