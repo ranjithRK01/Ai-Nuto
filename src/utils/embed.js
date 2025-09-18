@@ -12,10 +12,10 @@ const openai = new OpenAI({
 const generateEmbedding = async (text) => {
   try {
     const response = await openai.embeddings.create({
-      model: "text-embedding-ada-002",
+      model: 'text-embedding-ada-002',
       input: text,
     });
-    
+
     return response.data[0].embedding;
   } catch (error) {
     console.error('Error generating embedding:', error);
@@ -32,12 +32,12 @@ const generateEmbeddings = async (texts) => {
   try {
     console.log('Generating embeddings for', texts, 'texts');
     const embeddings = [];
-    
+
     for (const text of texts) {
       const embedding = await generateEmbedding(text);
       embeddings.push(embedding);
     }
-    
+
     return embeddings;
   } catch (error) {
     console.error('Error generating embeddings:', error);
@@ -47,5 +47,5 @@ const generateEmbeddings = async (texts) => {
 
 module.exports = {
   generateEmbedding,
-  generateEmbeddings
-}; 
+  generateEmbeddings,
+};

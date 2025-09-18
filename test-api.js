@@ -22,11 +22,13 @@ async function testAPI() {
     console.log('3. Testing ask question without data...');
     try {
       await axios.post(`${BASE_URL}/ask`, {
-        question: "What can I eat for breakfast?"
+        question: 'What can I eat for breakfast?',
       });
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        console.log('✅ Ask question correctly returned 404 (no data available)');
+        console.log(
+          '✅ Ask question correctly returned 404 (no data available)'
+        );
       } else {
         console.log('❌ Unexpected error:', error.response?.data);
       }
@@ -38,7 +40,6 @@ async function testAPI() {
     console.log('1. Upload a PDF nutrition plan using POST /api/upload');
     console.log('2. Ask questions using POST /api/ask');
     console.log('3. Use Postman or curl for testing with actual files');
-
   } catch (error) {
     console.error('❌ Test failed:', error.message);
     if (error.code === 'ECONNREFUSED') {
@@ -48,4 +49,4 @@ async function testAPI() {
 }
 
 // Run tests
-testAPI(); 
+testAPI();
