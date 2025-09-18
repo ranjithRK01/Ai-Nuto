@@ -2,9 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoUri ='mongodb+srv://ranjithRk01:IH7Z2BW2rBJTTTYu@reqsta.ntqrp.mongodb.net/reqsta?retryWrites=true&w=majority&appName=nutrition-ai'
-      // 'mongodb+srv://merndevops:n7bgcMuvFuCMzTPC@cluster0.jkeze.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-
+const mongoUri = process.env.MONGO_URI || "mongodb+srv://ranjithRk01:IH7Z2BW2rBJTTTYu@reqsta.ntqrp.mongodb.net/reqsta?retryWrites=true&w=majority&appName=nutrition-ai"
     const conn = await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -16,12 +14,12 @@ const connectDB = async () => {
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`📊 Database: ${conn.connection.name}`);
 
-    // Create vector search index if it doesn't exist (only for Atlas)
-    // if (true) {
-    //   await createVectorSearchIndex();
-    // } else {
-    //   console.log('💡 Local MongoDB detected - vector search will use cosine similarity fallback');
-    // }
+   // Create vector search index if it doesn't exist (only for Atlas)
+    if (true) {
+      await createVectorSearchIndex();
+    } else {
+      console.log('💡 Local MongoDB detected - vector search will use cosine similarity fallback');
+    }
 
     // Return the connection for external use
     return conn;

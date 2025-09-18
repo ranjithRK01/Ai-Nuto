@@ -142,11 +142,9 @@ const searchChunks = async (query, planId, limit = 8) => {
 
     // Generate embedding for query
     const queryEmbedding = await generateEmbedding(query);
-    const MONGO_URI =
-      'mongodb+srv://merndevops:MuZNMMd6W99EQr%@cluster0.jkeze.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
     // Try MongoDB Atlas vector search first
-    if (MONGO_URI && MONGO_URI.includes('mongodb+srv')) {
+ if (process.env.MONGO_URI && process.env.MONGO_URI.includes('mongodb+srv')) {
       try {
         const db = mongoose.connection.db;
         const results = await db

@@ -13,10 +13,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Check required environment variables
-const requiredEnvVars = ['GEMINI_API_KEY'];
-const missingEnvVars = requiredEnvVars.filter(
-  (varName) => !process.env[varName]
-);
+const requiredEnvVars = ['GEMINI_API_KEY', 'MONGO_URI'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
   console.error('❌ Missing required environment variables:');
@@ -176,7 +174,8 @@ app.use('*', (req, res) => {
       'POST /api/bill/generate-bill',
       'GET /api/bill/bills',
       'GET /api/bill/menu',
-      'POSt /api/user/register',
+      'POST /api/shop/register',
+      'GET /api/shop/shop-list',
     ],
   });
 });
@@ -213,9 +212,9 @@ app.listen(PORT, () => {
     );
   }
 
-  // if (!process.env.MONGO_URI) {
-  //   console.warn('⚠️  Warning: MONGO_URI not set. Database features will not work.');
-  // }
+  if (!process.env.MONGO_URI) {
+    console.warn('⚠️  Warning: MONGO_URI not set. Database features will not work.');
+  }
 });
 
 module.exports = app;
