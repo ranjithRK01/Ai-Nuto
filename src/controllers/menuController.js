@@ -103,7 +103,7 @@ const listMenuItems = async (req, res) => {
     if (shopId) filter.shopId = shopId;
     if (available === 'true') filter.isAvailable = true;
     if (available === 'false') filter.isAvailable = false;
-    if (category) filter.categories = { $in: Array.isArray(category) ? category : [category] };
+    // if (category) filter.categories = { $in: Array.isArray(category) ? category : [category] };
 
     let query = MenuItem.find(filter).select('-__v');
     if (q) {

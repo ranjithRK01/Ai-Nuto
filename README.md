@@ -1,1 +1,100 @@
 # Ai-Nuto
+
+
+Sample MENU JSON:
+
+
+{
+  "shopId": "shop_001",
+  "names": {
+    "en": { "full": "Plain Dosa" },
+    "ta": { "full": "பிளைன் தோசை" }
+  },
+  "price": 30,
+  "unit": "piece",
+  "categories": ["breakfast", "dinner"],
+  "synonyms": {
+    "en": [
+      "dosa",
+      "plain dosa",
+      "dosai",
+      "dosha",
+      "dosha plain",
+      "dhosai",
+      "dosai plain",
+      "doosa",
+      "doosa plain",
+      "dosaa",
+      "plain dosai",
+      "dhosaa",
+      "thosai",
+      "thosaa",
+      "dosai original",
+      "south indian dosa",
+      "paper dosa",
+      "crispy dosa",
+      "white dosa",
+      "dosai suda suda",
+      "dosai hot",
+      "breakfast dosa",
+      "dosaa piece",
+      "dosai tamil style",
+      "dosai shop special"
+    ],
+    "ta": [
+      "தோசை",
+      "பிளைன் தோசை",
+      "தோசா",
+      "தோசா பிளைன்",
+      "தோசா சாதா",
+      "பிளைன் தோசா",
+      "பிளைன் தோசை ஸ்பெஷல்",
+      "சாதா தோசை",
+      "சாதா தோசா",
+      "வெற்று தோசை",
+      "கடலை மாவு தோசை",
+      "சுட சுட தோசை",
+      "இட்லி தோசை",
+      "வெறும் தோசை",
+      "நெய் இல்லாத தோசை",
+      "ரொம்ப பிளைன் தோசை",
+      "மெலிதான தோசை",
+      "சுருண்ட தோசை",
+      "பொன்னிற தோசை",
+      "தோசை ஓரிஜினல்",
+      "தோசை டிரடிஷனல்",
+      "தோசை சாதா",
+      "தோசை ஹோட்டல் ஸ்டைல்",
+      "தோசை காமன்",
+      "தோசை டீக்கடை ஸ்டைல்"
+    ],
+    "hybrid": [
+      "dosai பிளைன்",
+      "plain தோசை",
+      "sada dosa",
+      "sada தோசை",
+      "hotel dosa",
+      "suda suda dosa",
+      "crispy தோசை",
+      "dosa special",
+      "தோசை piece",
+      "one dosa",
+      "1 dosa",
+      "oru dosa",
+      "oru plain dosa",
+      "plate dosa",
+      "dosa plate",
+      "dosai set",
+      "sada dosai piece",
+      "பிளைன் dosa",
+      "தோசை plain",
+      "dosai 1",
+      "dosai hot",
+      "dosa shop style",
+      "dosa tamil style",
+      "local dosa",
+      "hot dosa piece"
+    ]
+  },
+  "tags": ["veg", "south-indian", "tiffin"]
+}
