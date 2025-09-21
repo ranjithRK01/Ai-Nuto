@@ -46,7 +46,7 @@ function buildMenuItemPayload(body) {
     names,
     price: Number(body.price),
     unit: (body.unit || 'piece').trim(),
-    categories: mapToServiceCategories(body.categories?.length ? body.categories : body.category),
+    categories: body.categories,
     synonyms: {
       en: normalizeTrimmedArray(body.synonyms?.en || body.enSynonyms),
       ta: normalizeTrimmedArray(body.synonyms?.ta || body.taSynonyms)
