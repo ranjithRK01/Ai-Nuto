@@ -8,12 +8,14 @@ const {
   addMenuItem,
   updateMenuItem,
   deleteMenuItem,
+  createBill,
 } = require('../controllers/billController');
 
 // Bill generation routes
 router.post('/generate-bill', generateBillFromVoice);
 router.get('/bills', getAllBills);
 router.get('/bills/:id', getBillById);
+router.post('/bills', createBill);
 
 // Menu management routes
 router.get('/menu', getAllMenuItems);

@@ -14,6 +14,10 @@
  */
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const mongoose = require('mongoose');
+const Bill = require('../models/Bill');
+const Shop = require('../models/shop');
+const MenuItem = require('../models/MenuItem');
 
 // ------------------------------
 // Config & LLM init
@@ -603,6 +607,92 @@ const deleteMenuItem = async (req, res) => {
   });
 };
 
+// ------------------------------
+// Persist a bill to MongoDB
+// ------------------------------
+const createBill = async (req, res) => {
+  try {
+    const { shopId, voiceInput, processedText, items, subtotal, tax, total } = req.body || {};
+
+    if (!shopId || !mongoose.Types.ObjectId.isValid(shopId)) {
+      return res.status(400).json({ error: 'Invalid shopId', message: 'Provide a valid Mongo ObjectId for shopId' });
+    }
+
+    // Optional: verify shop exists
+    try {
+      const shopExists = await Shop.findById(shopId).lean();
+      if (!shopExists) {
+        return res.status(404).json({ error: 'Shop not found', message: 'No shop found for given shopId' });
+      }
+    } catch (e) {
+      // If shops collection is not critical, still surface error
+      console.warn('⚠️  Shop lookup failed:', e.message);
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'Invalid items', message: 'Provide non-empty items array' });
+    }
+
+    // Accept and store items as sent (validate fields). Keep menuItem ObjectId link.
+    const normalizedItems = [];
+    for (const it of items) {
+      const menuItemId = it.menuItemId || it.menuItem || it.menuItem_id || it.menuItemID;
+      if (!menuItemId || !mongoose.Types.ObjectId.isValid(menuItemId)) {
+        return res.status(400).json({ error: 'Invalid item.menuItemId', message: 'Each item must include a valid menuItemId' });
+      }
+      const quantity = Math.max(1, Number(it.quantity || 0));
+      const unitPrice = Number(it.unitPrice);
+      const totalPrice = Number(it.totalPrice != null ? it.totalPrice : (Number.isFinite(unitPrice) ? unitPrice * quantity : NaN));
+      const itemName = (typeof it.itemName === 'string' && it.itemName.trim()) ? it.itemName.trim() : '';
+
+      if (!itemName) {
+        return res.status(400).json({ error: 'Invalid itemName', message: 'Each item must include itemName' });
+      }
+      if (!Number.isFinite(quantity) || quantity <= 0) {
+        return res.status(400).json({ error: 'Invalid quantity', message: 'Each item must include a positive quantity' });
+      }
+      if (!Number.isFinite(unitPrice) || unitPrice < 0) {
+        return res.status(400).json({ error: 'Invalid unitPrice', message: 'Each item must include a non-negative unitPrice' });
+      }
+      if (!Number.isFinite(totalPrice) || totalPrice < 0) {
+        return res.status(400).json({ error: 'Invalid totalPrice', message: 'Provide totalPrice or a valid unitPrice to compute it' });
+      }
+
+      normalizedItems.push({
+        menuItem: menuItemId,
+        itemName,
+        quantity,
+        unitPrice,
+        totalPrice
+      });
+    }
+
+    if (normalizedItems.length === 0) {
+      return res.status(400).json({ error: 'Invalid items', message: 'Items must include itemName, quantity, unitPrice' });
+    }
+
+    const computedSubtotal = normalizedItems.reduce((s, it) => s + it.totalPrice, 0);
+    const taxValue = Number.isFinite(Number(tax)) && Number(tax) >= 0 ? Number(tax) : 0;
+    const subtotalValue = Number.isFinite(Number(subtotal)) && Number(subtotal) >= 0 ? Number(subtotal) : computedSubtotal;
+    const totalValue = Number.isFinite(Number(total)) && Number(total) >= 0 ? Number(total) : (subtotalValue + taxValue);
+
+    const doc = await Bill.create({
+      shop: shopId,
+      voiceInput: voiceInput || '',
+      processedText: processedText || '',
+      items: normalizedItems,
+      subtotal: subtotalValue,
+      tax: taxValue,
+      total: totalValue,
+    });
+
+    return res.status(201).json({ success: true, message: 'Bill stored', bill: doc });
+  } catch (error) {
+    console.error('❌ Error creating bill:', error);
+    return res.status(500).json({ error: 'Internal server error', message: 'Failed to store bill' });
+  }
+};
+
 module.exports = {
   generateBillFromVoice,
   getAllBills,
@@ -612,4 +702,5 @@ module.exports = {
   updateMenuItem,
   deleteMenuItem,
   initializeMenu,
+  createBill,
 };

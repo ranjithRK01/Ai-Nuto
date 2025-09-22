@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const billItemSchema = new mongoose.Schema({
+  menuItem: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'MenuItem',
+    required: true,
+    index: true,
+  },
   itemName: {
     type: String,
     required: true,
@@ -24,13 +30,19 @@ const billItemSchema = new mongoose.Schema({
 
 const billSchema = new mongoose.Schema(
   {
+    shop: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shop',
+      required: true,
+      index: true,
+    },
     voiceInput: {
       type: String,
-      required: true,
+      required: false,
     },
     processedText: {
       type: String,
-      required: true,
+      required: false,
     },
     items: [billItemSchema],
     subtotal: {
