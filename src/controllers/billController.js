@@ -693,6 +693,88 @@ const createBill = async (req, res) => {
   }
 };
 
+// ------------------------------
+// Reports: daily sales and insights per shop
+// ------------------------------
+const getDailyReport = async (req, res) => {
+  try {
+    const { shopId } = req.query;
+    if (!shopId || !mongoose.Types.ObjectId.isValid(shopId)) {
+      return res.status(400).json({ error: 'Invalid shopId', message: 'Provide a valid Mongo ObjectId for shopId' });
+    }
+
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const [summary] = await Bill.aggregate([
+      { $match: { shop: new mongoose.Types.ObjectId(shopId), createdAt: { $gte: startOfDay, $lt: endOfDay } } },
+      {
+        $facet: {
+          totals: [
+            {
+              $group: {
+                _id: null,
+                totalSales: { $sum: '$total' },
+                totalSubtotal: { $sum: '$subtotal' },
+                totalTax: { $sum: '$tax' },
+                billCount: { $sum: 1 },
+                avgBill: { $avg: '$total' },
+                minBill: { $min: '$total' },
+                maxBill: { $max: '$total' }
+              }
+            }
+          ],
+          topItems: [
+            { $unwind: '$items' },
+            {
+              $group: {
+                _id: { menuItem: '$items.menuItem', itemName: '$items.itemName' },
+                qty: { $sum: '$items.quantity' },
+                revenue: { $sum: '$items.totalPrice' }
+              }
+            },
+            { $sort: { qty: -1, revenue: -1 } },
+            { $limit: 10 }
+          ],
+          hourly: [
+            {
+              $group: {
+                _id: { $hour: { date: '$createdAt', timezone: 'UTC' } },
+                totalSales: { $sum: '$total' },
+                billCount: { $sum: 1 }
+              }
+            },
+            { $sort: { '_id': 1 } }
+          ]
+        }
+      }
+    ]);
+
+    const totals = (summary?.totals?.[0]) || { totalSales: 0, totalSubtotal: 0, totalTax: 0, billCount: 0, avgBill: 0, minBill: 0, maxBill: 0 };
+    const topItems = (summary?.topItems || []).map(x => ({
+      menuItem: x._id.menuItem,
+      itemName: x._id.itemName,
+      quantity: x.qty,
+      revenue: x.revenue
+    }));
+    const hourly = (summary?.hourly || []).map(x => ({ hourUtc: x._id, totalSales: x.totalSales, billCount: x.billCount }));
+
+    return res.json({
+      success: true,
+      range: { start: startOfDay.toISOString(), end: endOfDay.toISOString(), timezone: 'UTC' },
+      shopId,
+      totals,
+      topItems,
+      hourly
+    });
+  } catch (error) {
+    console.error('❌ Error generating daily report:', error);
+    return res.status(500).json({ error: 'Internal server error', message: 'Failed to generate report' });
+  }
+};
+
 module.exports = {
   generateBillFromVoice,
   getAllBills,
@@ -703,4 +785,5 @@ module.exports = {
   deleteMenuItem,
   initializeMenu,
   createBill,
+  getDailyReport,
 };

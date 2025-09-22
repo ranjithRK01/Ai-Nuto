@@ -66,4 +66,7 @@ const billSchema = new mongoose.Schema(
   }
 );
 
+// Helpful index for reports
+billSchema.index({ shop: 1, createdAt: 1 });
+
 module.exports = mongoose.model('Bill', billSchema);
