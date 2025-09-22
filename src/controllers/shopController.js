@@ -6,7 +6,7 @@ const shopRegister = async (req, res) => {
     // Convert phone to string
     const phoneStr = phone.toString();
     // Take first 4 digits as password
-    const password = phoneStr.slice(0, 4); 
+    const password = phoneStr.slice(0, 4);   
     const userRegister = new Shop({
       shopName,
       name,
